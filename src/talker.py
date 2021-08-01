@@ -28,7 +28,7 @@ def bno08x_node():
     rospy.loginfo(rospy.get_caller_id() + "  bno08x node launched.")
 
     i2c = busio.I2C(board.SCL, board.SDA, frequency=800000)
-    bno = BNO08X_I2C(i2c,address=0x4b) # BNO080 (0x4b) BNO085 (0x4a)
+    bno = BNO08X_I2C(i2c,address=0x4a) # BNO080 (0x4b) BNO085 (0x4a)
 
     bno.enable_feature(BNO_REPORT_ACCELEROMETER)
     bno.enable_feature(BNO_REPORT_GYROSCOPE)
