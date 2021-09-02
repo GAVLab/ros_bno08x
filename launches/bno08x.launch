@@ -1,4 +1,5 @@
 <launch>
     <node name="ros_bno08x" pkg="ros_bno08x" type="talker.py" respawn="true" respawn_delay="2">
+  <param name="frame_id" value="imu_frame" />
     </node>
 </launch>

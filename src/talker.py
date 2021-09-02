@@ -13,7 +13,7 @@ from adafruit_bno08x import (
     BNO_REPORT_ACCELEROMETER,
     BNO_REPORT_GYROSCOPE,
     BNO_REPORT_MAGNETOMETER,
-    BNO_REPORT_ROTATION_VECTOR,
+    BNO_REPORT_ROTATION_VECTOR
 )
 from adafruit_bno08x.i2c import BNO08X_I2C
 
@@ -26,6 +26,12 @@ def bno08x_node():
     rospy.init_node('bno08x')
     rate = rospy.Rate(100) # frequency in Hz
     rospy.loginfo(rospy.get_caller_id() + "  bno08x node launched.")
+    frame_id = rospy.get_param('~frame_id', 'imu')
+    # load covariance from parameter
+    cov_linear = rospy.get_param('~cov_linear', -1)
+    cov_angular = rospy.get_param('~cov_angular', -1)
+    cov_orientation = rospy.get_param('~cov_orientation', -1)
+    cov_magnetic = rospy.get_param('~cov_magnetic', -1)
 
     i2c = busio.I2C(board.SCL, board.SDA, frequency=800000)
     bno = BNO08X_I2C(i2c,address=0x4a) # BNO080 (0x4b) BNO085 (0x4a)
@@ -40,6 +46,7 @@ def bno08x_node():
     while True:
         raw_msg = Imu()
         raw_msg.header.stamp = rospy.Time.now()
+        raw_msg.header.frame_id = frame_id
 
         accel_x, accel_y, accel_z = bno.acceleration
         raw_msg.linear_acceleration.x = accel_x
@@ -52,15 +59,30 @@ def bno08x_node():
         raw_msg.angular_velocity.z = gyro_z
         
         quat_i, quat_j, quat_k, quat_real = bno.quaternion
-        raw_msg.orientation.w = quat_i
-        raw_msg.orientation.x = quat_j
-        raw_msg.orientation.y = quat_k
-        raw_msg.orientation.z = quat_real
+        raw_msg.orientation.w = quat_real
+        raw_msg.orientation.x = quat_i
+        raw_msg.orientation.y = quat_j
+        raw_msg.orientation.z = quat_k
 
-        
         raw_msg.orientation_covariance[0] = -1
         raw_msg.linear_acceleration_covariance[0] = -1
         raw_msg.angular_velocity_covariance[0] = -1
+
+        if cov_orientation != -1:
+            raw_msg.orientation_covariance[0] = cov_orientation
+            raw_msg.orientation_covariance[4] = cov_orientation
+            raw_msg.orientation_covariance[8] = cov_orientation
+
+
+        if cov_linear != -1:
+            raw_msg.linear_acceleration_covariance[0] = cov_linear
+            raw_msg.linear_acceleration_covariance[4] = cov_linear
+            raw_msg.linear_acceleration_covariance[8] = cov_linear
+
+        if cov_angular != -1:
+            raw_msg.angular_velocity_covariance[0] = cov_angular
+            raw_msg.angular_velocity_covariance[4] = cov_angular
+            raw_msg.angular_velocity_covariance[8] = cov_angular
 
         raw_pub.publish(raw_msg)
 
@@ -70,7 +92,13 @@ def bno08x_node():
         mag_msg.magnetic_field.x = mag_x
         mag_msg.magnetic_field.y = mag_y
         mag_msg.magnetic_field.z = mag_z
+
         mag_msg.magnetic_field_covariance[0] = -1
+        if cov_magnetic != -1:
+            mag_msg.magnetic_field_covariance[0] = cov_magnetic
+            mag_msg.magnetic_field_covariance[4] = cov_magnetic
+            mag_msg.magnetic_field_covariance[8] = cov_magnetic
+
         mag_pub.publish(mag_msg)
         
         status_msg = DiagnosticStatus()
