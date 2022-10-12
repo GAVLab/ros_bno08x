@@ -1,5 +1,7 @@
 <launch>
     <node name="ros_bno08x" pkg="ros_bno08x" type="talker.py" respawn="true" respawn_delay="2" output="screen">
-  <param name="frame_id" value="imu_frame" />
+      <param name="frame_id" type="string" value="imu_frame" />
+      <param name="rotation_vector" type="bool" value="True" />
+      <param name="geomag_vector" type="bool" value="True" />
     </node>
 </launch>
