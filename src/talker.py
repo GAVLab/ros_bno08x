@@ -5,7 +5,6 @@ import rospy
 from sensor_msgs.msg import MagneticField,Imu
 from std_msgs.msg import Float64
 from diagnostic_msgs.msg import DiagnosticStatus
-from ros_bno08x.srv import doCalibration, doCalibrationResponse
 import time
 import sys
 import board
