@@ -13,7 +13,7 @@ from adafruit_bno08x import (
 from adafruit_bno08x.i2c import BNO08X_I2C
 
 i2c = busio.I2C(board.SCL, board.SDA, frequency=800000)
-bno = BNO08X_I2C(i2c,address=0x4b) # BNO080 (0x4b) BNO085 (0x4a)
+bno = BNO08X_I2C(i2c,address=0x4a) # BNO080 (0x4b) BNO085 (0x4a)
 
 bno.enable_feature(BNO_REPORT_ACCELEROMETER)
 bno.enable_feature(BNO_REPORT_GYROSCOPE)
